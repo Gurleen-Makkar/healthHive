@@ -3,25 +3,36 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2196f3', // Blue
-      light: '#64b5f6',
-      dark: '#1976d2',
+      main: '#4B6BFB', // Softer blue
+      light: '#7B90FF',
+      dark: '#3451DB',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#f50057', // Pink
-      light: '#ff4081',
-      dark: '#c51162',
+      main: '#8B5CF6', // Purple
+      light: '#A78BFA',
+      dark: '#7C3AED',
       contrastText: '#fff',
     },
+    success: {
+      main: '#10B981', // Green for confirmed status
+      light: '#34D399',
+      dark: '#059669',
+    },
     background: {
-      default: '#f5f5f5',
+      default: '#F8FAFC',
       paper: '#ffffff',
+      gradient: 'linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 50%, #FDF4FF 100%)',
+    },
+    text: {
+      primary: '#1E293B',
+      secondary: '#64748B',
     },
   },
+
   typography: {
     fontFamily: [
-      'Roboto',
+      'Inter',
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
@@ -58,15 +69,31 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 8,
+          borderRadius: 12,
+          padding: '8px 24px',
+          fontSize: '0.95rem',
+          fontWeight: 500,
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          },
+        },
+        containedPrimary: {
+          background: 'linear-gradient(45deg, #4B6BFB, #7B90FF)',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          borderRadius: 16,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.02)',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 12px 20px rgba(0, 0, 0, 0.06)',
+          },
         },
       },
     },
@@ -74,8 +101,31 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 8,
+            borderRadius: 12,
+            backgroundColor: '#fff',
+            '& fieldset': {
+              borderColor: 'rgba(226, 232, 240, 0.8)',
+            },
+            '&:hover fieldset': {
+              borderColor: '#4B6BFB',
+            },
           },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          height: 28,
+          fontWeight: 500,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
         },
       },
     },

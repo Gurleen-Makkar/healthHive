@@ -75,56 +75,81 @@ const DoctorList = () => {
   );
 
   return (
-    <Box>
-      {/* Header */}
-      <Box mb={4}>
-        <Typography variant="h4" gutterBottom>
-          Find a Doctor
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Book appointments with qualified healthcare providers
-        </Typography>
-      </Box>
+    <Box sx={{ 
+      background: theme => theme.palette.background.gradient,
+      minHeight: '100vh',
+      px: 3,
+      py: 4 
+    }}>
+      <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
+        {/* Header */}
+        <Box mb={6} textAlign="center">
+          <Typography variant="h3" gutterBottom fontWeight="600" color="text.primary">
+            Find a Doctor
+          </Typography>
+          <Typography variant="h6" color="text.secondary" fontWeight="normal">
+            Book appointments with qualified healthcare providers
+          </Typography>
+        </Box>
 
-      {/* Filters */}
-      <Grid container spacing={2} mb={4}>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            name="search"
-            placeholder="Search by name or specialty"
-            value={filters.search}
-            onChange={handleFilterChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            select
-            fullWidth
-            name="specialty"
-            label="Specialty"
-            value={filters.specialty}
-            onChange={handleFilterChange}
-          >
-            <MenuItem value="">All Specialties</MenuItem>
-            {specialties.map((specialty) => (
-              <MenuItem key={specialty} value={specialty}>
-                {specialty}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-      </Grid>
+        {/* Filters */}
+        <Box sx={{
+          background: '#fff',
+          borderRadius: 3,
+          p: 2,
+          mb: 6,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.02)',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+        }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={8}>
+              <TextField
+                fullWidth
+                name="search"
+                placeholder="Search doctors by name or specialty..."
+                value={filters.search}
+                onChange={handleFilterChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#F8FAFC',
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                select
+                fullWidth
+                name="specialty"
+                value={filters.specialty}
+                onChange={handleFilterChange}
+                displayEmpty
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#F8FAFC',
+                  }
+                }}
+              >
+                <MenuItem value="">All Specialties</MenuItem>
+                {specialties.map((specialty) => (
+                  <MenuItem key={specialty} value={specialty}>
+                    {specialty}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        </Box>
 
-      {/* Doctor List */}
-      {loading ? (
+        {/* Doctor List */}
+        {loading ? (
         <Box display="flex" justifyContent="center" p={4}>
           <CircularProgress />
         </Box>
@@ -133,59 +158,92 @@ const DoctorList = () => {
           <Grid container spacing={3}>
             {filteredDoctors.map((doctor) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={doctor._id}>
-                <Card>
-                  <CardContent>
-                    <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardContent sx={{ flex: 1, p: 3 }}>
+                    <Box display="flex" gap={3}>
                       <Avatar
                         sx={{ 
-                          width: 100, 
-                          height: 100, 
-                          mb: 2,
-                          bgcolor: 'primary.main',
-                          fontSize: '2.5rem'
+                          width: 80, 
+                          height: 80,
+                          bgcolor: 'primary.light',
+                          fontSize: '2rem',
+                          border: '4px solid',
+                          borderColor: 'primary.lighter'
                         }}
                       >
                         {doctor.name.charAt(0)}
                       </Avatar>
-                      <Typography variant="h6" align="center" gutterBottom>
-                        Dr. {doctor.name}
-                      </Typography>
-                      <Chip
-                        label={doctor.specialty}
-                        color="primary"
-                        size="small"
-                        sx={{ mb: 1 }}
-                      />
-                      <Rating
-                        value={doctor.rating}
-                        readOnly
-                        size="small"
-                        precision={0.5}
-                      />
+                      <Box>
+                        <Typography variant="h6" gutterBottom fontWeight="600">
+                          Dr. {doctor.name}
+                        </Typography>
+                        <Chip
+                          label={doctor.specialty}
+                          color="primary"
+                          size="small"
+                          sx={{ mb: 1, borderRadius: 1.5 }}
+                        />
+                        <Box display="flex" alignItems="center" gap={0.5}>
+                          <Rating
+                            value={doctor.rating}
+                            readOnly
+                            size="small"
+                            precision={0.5}
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            ({doctor.rating})
+                          </Typography>
+                        </Box>
+                      </Box>
                     </Box>
 
-                    <Box display="flex" alignItems="center" gap={1} mb={1}>
-                      <AccessTimeIcon color="action" fontSize="small" />
-                      <Typography variant="body2" color="text.secondary">
-                        {doctor.experience} years experience
-                      </Typography>
-                    </Box>
+                    <Box sx={{ mt: 3 }}>
+                      <Box display="flex" alignItems="center" gap={1} mb={1.5}>
+                        <AccessTimeIcon color="primary" fontSize="small" />
+                        <Typography variant="body2">
+                          {doctor.experience} years experience
+                        </Typography>
+                      </Box>
 
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <LocationIcon color="action" fontSize="small" />
-                      <Typography variant="body2" color="text.secondary">
-                        Consultation Fee: ${doctor.consultationFee}
+                      <Box display="flex" alignItems="center" gap={1} mb={1.5}>
+                        <LocationIcon color="primary" fontSize="small" />
+                        <Typography variant="body2">
+                          Consultation Fee: ${doctor.consultationFee}
+                        </Typography>
+                      </Box>
+
+                      <Typography variant="body2" color="text.secondary" mt={2}>
+                        Available on
                       </Typography>
+                      <Box display="flex" gap={1} mt={1}>
+                        {['Monday', 'Wednesday', 'Friday'].map(day => (
+                          <Chip
+                            key={day}
+                            label={day.slice(0, 3)}
+                            size="small"
+                            variant="outlined"
+                            sx={{ 
+                              borderRadius: 1,
+                              bgcolor: 'background.paper',
+                              borderColor: 'primary.light'
+                            }}
+                          />
+                        ))}
+                      </Box>
                     </Box>
                   </CardContent>
 
-                  <CardActions>
+                  <CardActions sx={{ p: 3, pt: 0 }}>
                     <Button
                       fullWidth
                       variant="contained"
                       onClick={() => navigate(`/doctors/${doctor._id}`)}
+                      sx={{ 
+                        py: 1,
+                        fontWeight: 600
+                      }}
                     >
-                      View Profile & Book
+                      Book Appointment
                     </Button>
                   </CardActions>
                 </Card>
@@ -212,6 +270,7 @@ const DoctorList = () => {
           )}
         </>
       )}
+      </Box>
     </Box>
   );
 };

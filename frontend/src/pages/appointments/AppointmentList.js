@@ -21,7 +21,8 @@ import {
   Alert,
   IconButton,
   Tooltip,
-  InputAdornment
+  InputAdornment,
+  Avatar
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -126,72 +127,98 @@ const AppointmentList = () => {
   const filteredAppointments = appointments;
 
   return (
-    <Box>
-      <Box mb={4}>
-        <Typography variant="h4" gutterBottom>
-          My Appointments
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          View and manage your appointments
-        </Typography>
-      </Box>
+    <Box sx={{ 
+      background: theme => theme.palette.background.gradient,
+      minHeight: '100vh',
+      px: 3,
+      py: 4 
+    }}>
+      <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
+        <Box mb={6} textAlign="center">
+          <Typography variant="h3" gutterBottom fontWeight="600" color="text.primary">
+            My Appointments
+          </Typography>
+          <Typography variant="h6" color="text.secondary" fontWeight="normal">
+            View and manage your appointments
+          </Typography>
+        </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
 
-      {successMessage && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          {successMessage}
-        </Alert>
-      )}
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            {successMessage}
+          </Alert>
+        )}
 
-      {/* Filters */}
-      <Grid container spacing={2} mb={4}>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            fullWidth
-            name="search"
-            placeholder="Search by doctor name or specialty"
-            value={filters.search}
-            onChange={handleFilterChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            select
-            fullWidth
-            name="status"
-            label="Status"
-            value={filters.status}
-            onChange={handleFilterChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FilterIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
-          >
-            <MenuItem value="">All Status</MenuItem>
-            <MenuItem value="scheduled">Scheduled</MenuItem>
-            <MenuItem value="completed">Completed</MenuItem>
-            <MenuItem value="cancelled">Cancelled</MenuItem>
-          </TextField>
-        </Grid>
-      </Grid>
+        {/* Filters */}
+        <Box sx={{
+          background: '#fff',
+          borderRadius: 3,
+          p: 2,
+          mb: 6,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.02)',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+        }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                name="search"
+                placeholder="Search by doctor name or specialty..."
+                value={filters.search}
+                onChange={handleFilterChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#F8FAFC',
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                fullWidth
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                displayEmpty
+                placeholder="Filter by status"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FilterIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#F8FAFC',
+                  }
+                }}
+              >
+                <MenuItem value="">All Status</MenuItem>
+                <MenuItem value="scheduled">Scheduled</MenuItem>
+                <MenuItem value="completed">Completed</MenuItem>
+                <MenuItem value="cancelled">Cancelled</MenuItem>
+              </TextField>
+            </Grid>
+          </Grid>
+        </Box>
 
-      {/* Appointments List */}
-      {loading ? (
+        {/* Appointments List */}
+        {loading ? (
         <Box display="flex" justifyContent="center" p={4}>
           <CircularProgress />
         </Box>
@@ -199,74 +226,102 @@ const AppointmentList = () => {
         <Grid container spacing={3}>
           {filteredAppointments.map((appointment) => (
             <Grid item xs={12} key={appointment._id}>
-              <Card>
-                <CardContent>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={4}>
-                      <Typography variant="h6">
-                        Dr. {appointment.doctor?.name || 'Loading...'}
-                      </Typography>
-                      <Typography color="text.secondary" gutterBottom>
-                        {appointment.doctor?.specialty || 'Loading...'}
-                      </Typography>
-                    </Grid>
+              <Card sx={{ 
+                p: 2,
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 12px 20px rgba(0, 0, 0, 0.06)',
+                }
+              }}>
+                <Grid container spacing={3} alignItems="center">
+                  <Grid item xs={12} sm={4}>
+                    <Box display="flex" gap={2} alignItems="center">
+                      <Avatar
+                        sx={{ 
+                          width: 50, 
+                          height: 50,
+                          bgcolor: 'primary.light',
+                          fontSize: '1.2rem'
+                        }}
+                      >
+                        {appointment.doctor?.name?.charAt(0) || '?'}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="h6" fontWeight="600">
+                          Dr. {appointment.doctor?.name || 'Loading...'}
+                        </Typography>
+                        <Typography color="text.secondary" variant="body2">
+                          {appointment.doctor?.specialty || 'Loading...'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
 
-                    <Grid item xs={12} sm={3}>
-                      <Typography variant="body2" color="text.secondary">
+                  <Grid item xs={12} sm={3}>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary" mb={0.5}>
                         Date & Time
                       </Typography>
-                      <Typography>
+                      <Typography fontWeight="500">
                         {formatDate(appointment.appointmentDate)}
                       </Typography>
-                      <Typography>
+                      <Typography color="primary" fontWeight="500">
                         {appointment.timeSlot}
                       </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} sm={2}>
-                      <Chip
-                        label={appointment.status}
-                        color={getStatusColor(appointment.status)}
-                        size="small"
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} sm={3}>
-                      <Box display="flex" gap={1} justifyContent="flex-end">
-                        <Tooltip title="View Details">
-                          <IconButton
-                            onClick={() => navigate(`/appointments/${appointment._id}`)}
-                            size="small"
-                          >
-                            <ViewIcon />
-                          </IconButton>
-                        </Tooltip>
-
-                        {appointment.status === 'scheduled' && (
-                          <>
-                            <Tooltip title="Edit Appointment">
-                              <IconButton
-                                onClick={() => navigate(`/appointments/${appointment._id}/edit`)}
-                                size="small"
-                              >
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Cancel Appointment">
-                              <IconButton
-                                onClick={() => handleCancelClick(appointment._id)}
-                                size="small"
-                                color="error"
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        )}
-                      </Box>
-                    </Grid>
+                    </Box>
                   </Grid>
-                </CardContent>
+
+                  <Grid item xs={12} sm={2}>
+                    <Chip
+                      label={appointment.status}
+                      color={getStatusColor(appointment.status)}
+                      sx={{ 
+                        borderRadius: 2,
+                        textTransform: 'capitalize',
+                        fontWeight: 500
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={3}>
+                    <Box display="flex" gap={1} justifyContent="flex-end">
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<ViewIcon />}
+                        onClick={() => navigate(`/appointments/${appointment._id}`)}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        View
+                      </Button>
+
+                      {appointment.status === 'scheduled' && (
+                        <>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<EditIcon />}
+                            onClick={() => navigate(`/appointments/${appointment._id}/edit`)}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleCancelClick(appointment._id)}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
               </Card>
             </Grid>
           ))}
@@ -286,44 +341,55 @@ const AppointmentList = () => {
         </Box>
       )}
 
-      {/* Pagination */}
-      {filteredAppointments.length > 0 && (
-        <Box display="flex" justifyContent="center" mt={4}>
-          <Pagination
-            count={pagination.totalPages}
-            page={filters.page}
-            onChange={handlePageChange}
-            color="primary"
-          />
-        </Box>
-      )}
+        {/* Pagination */}
+        {filteredAppointments.length > 0 && (
+          <Box display="flex" justifyContent="center" mt={4}>
+            <Pagination
+              count={pagination.totalPages}
+              page={filters.page}
+              onChange={handlePageChange}
+              color="primary"
+              sx={{ '& .MuiPaginationItem-root': { borderRadius: 2 } }}
+            />
+          </Box>
+        )}
 
-      {/* Cancel Confirmation Dialog */}
-      <Dialog
-        open={deleteDialog.open}
-        onClose={() => setDeleteDialog({ open: false, appointmentId: null })}
-      >
+        {/* Cancel Confirmation Dialog */}
+        <Dialog
+          open={deleteDialog.open}
+          onClose={() => setDeleteDialog({ open: false, appointmentId: null })}
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            }
+          }}
+        >
         <DialogTitle>Cancel Appointment</DialogTitle>
         <DialogContent>
           <Typography>
             Are you sure you want to cancel this appointment? This action cannot be undone.
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteDialog({ open: false, appointmentId: null })}
-          >
-            No, Keep It
-          </Button>
-          <Button
-            onClick={handleConfirmCancel}
-            color="error"
-            variant="contained"
-          >
-            Yes, Cancel It
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <DialogActions sx={{ p: 3 }}>
+            <Button
+              onClick={() => setDeleteDialog({ open: false, appointmentId: null })}
+              variant="outlined"
+              sx={{ borderRadius: 2 }}
+            >
+              No, Keep It
+            </Button>
+            <Button
+              onClick={handleConfirmCancel}
+              color="error"
+              variant="contained"
+              sx={{ borderRadius: 2 }}
+            >
+              Yes, Cancel It
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </Box>
   );
 };
