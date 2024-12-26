@@ -75,11 +75,14 @@ A full-stack application for booking medical appointments, built with React and 
 2. Click "Add New Project"
 3. Import the same GitHub repository
 4. Configure project:
-   - Framework Preset: Create React App
    - Root Directory: frontend
-   - Build Command: `npm run build`
-   - Output Directory: build
-   - Install Command: `npm install`
+   - Framework Preset: Other
+   - Build and Output Settings:
+     - Build Command: Will be automatically picked up from vercel.json
+     - Output Directory: Will be automatically picked up from vercel.json
+     - Install Command: Will be automatically picked up from vercel.json
+
+   Note: The frontend uses CRACO (Create React App Configuration Override) with react-scripts
 
 5. Add Environment Variables:
    ```
