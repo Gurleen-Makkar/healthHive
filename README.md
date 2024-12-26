@@ -32,27 +32,86 @@ A full-stack application for booking medical appointments, built with React and 
 
 ## Deployment Instructions
 
-### Frontend Deployment (Vercel)
+### Prerequisites
+1. Create a [GitHub](https://github.com) account if you don't have one
+2. Create a [Vercel](https://vercel.com) account (you can sign up with GitHub)
+3. Have a MongoDB Atlas cluster ready with connection string
 
-1. Push your code to GitHub
-2. Go to [Vercel](https://vercel.com) and create a new project
+### Step 1: Prepare Repository
+1. Create a new GitHub repository
+2. Push your code to GitHub:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin <your-github-repo-url>
+   git push -u origin main
+   ```
+
+### Step 2: Deploy Backend on Vercel
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click "Add New Project"
 3. Import your GitHub repository
-4. Configure environment variables in Vercel:
-   - `REACT_APP_API_URL`: Your deployed backend API URL
-   - `REACT_APP_NAME`: HealthHive
-   - `REACT_APP_DESCRIPTION`: Medical Appointment Booking System
-   - `GENERATE_SOURCEMAP`: false
-5. Deploy the project
+4. Configure project:
+   - Framework Preset: Other
+   - Root Directory: backend
+   - Build Command: `npm install`
+   - Output Directory: Leave empty
+   - Install Command: `npm install`
 
-### Backend Deployment
+5. Add Environment Variables:
+   ```
+   MONGODB_URI=<your-mongodb-connection-string>
+   JWT_SECRET=<your-jwt-secret>
+   NODE_ENV=production
+   ```
 
-1. Choose a hosting service (e.g., Render, Railway, Heroku)
-2. Set up environment variables:
-   - `MONGODB_URI`: Your MongoDB connection string
-   - `JWT_SECRET`: Your JWT secret key
-   - `PORT`: Port number (if required by hosting service)
-3. Deploy the backend
-4. Update the frontend's REACT_APP_API_URL to point to your deployed backend
+6. Click "Deploy"
+7. Once deployed, copy your backend API URL (e.g., https://your-app-name.vercel.app)
+
+### Step 3: Deploy Frontend on Vercel
+1. Go back to Vercel Dashboard
+2. Click "Add New Project"
+3. Import the same GitHub repository
+4. Configure project:
+   - Framework Preset: Create React App
+   - Root Directory: frontend
+   - Build Command: `npm run build`
+   - Output Directory: build
+   - Install Command: `npm install`
+
+5. Add Environment Variables:
+   ```
+   REACT_APP_API_URL=https://your-app-name.vercel.app/api
+   REACT_APP_NAME=HealthHive
+   REACT_APP_DESCRIPTION=Medical Appointment Booking System
+   GENERATE_SOURCEMAP=false
+   ```
+   Note: Replace the API URL with your backend URL from Step 2
+
+6. Click "Deploy"
+
+### Step 4: Verify Deployment
+1. Test Backend API:
+   - Visit your backend URL (e.g., https://your-backend.vercel.app/api/doctors)
+   - Verify that you can see the API response
+
+2. Test Frontend:
+   - Visit your frontend URL
+   - Try to register and login
+   - Check if you can view doctors and book appointments
+
+### Troubleshooting
+1. If the backend API is not responding:
+   - Check Vercel deployment logs
+   - Verify MongoDB connection string
+   - Ensure environment variables are set correctly
+
+2. If the frontend can't connect to the backend:
+   - Check if REACT_APP_API_URL is set correctly
+   - Verify that the backend URL is accessible
+   - Check browser console for CORS errors
 
 ## Local Development
 
