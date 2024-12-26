@@ -78,11 +78,11 @@ A full-stack application for booking medical appointments, built with React and 
    - Root Directory: frontend
    - Framework Preset: Other
    - Build and Output Settings:
-     - Build Command: Will be automatically picked up from vercel.json
-     - Output Directory: Will be automatically picked up from vercel.json
-     - Install Command: Will be automatically picked up from vercel.json
+     - Build Command: `npm install && npm run build`
+     - Output Directory: `build`
+     - Install Command: `npm install`
 
-   Note: The frontend uses CRACO (Create React App Configuration Override) with react-scripts
+   Note: Make sure these settings match exactly as shown above, since we're using CRACO instead of default Create React App
 
 5. Add Environment Variables:
    ```
