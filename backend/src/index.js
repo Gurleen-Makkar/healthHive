@@ -10,12 +10,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: ['https://health-hive-six.vercel.app', 'http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.use(express.json());
 
 // Database connection
