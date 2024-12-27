@@ -15,7 +15,23 @@ app.use(cors({
   origin: ['http://localhost:3000','https://health-hive-six.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization',
+    'Accept',
+    'Accept-Language',
+    'If-None-Match',
+    'Priority',
+    'Origin',
+    'Referer',
+    'Sec-Ch-Ua',
+    'Sec-Ch-Ua-Mobile',
+    'Sec-Ch-Ua-Platform',
+    'Sec-Fetch-Dest',
+    'Sec-Fetch-Mode',
+    'Sec-Fetch-Site',
+    'User-Agent'
+  ]
 }));
 
 // Request logging middleware
