@@ -3,6 +3,10 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
+// Configure axios defaults
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.withCredentials = true;
+
 // Async thunks
 export const register = createAsyncThunk(
   'auth/register',
@@ -26,15 +30,31 @@ export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
+      console.log('Making login request to:', `${API_URL}/auth/login`);
+      console.log('Request payload:', { email, password });
+
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password
       });
       
+      console.log('Login response:', response.data);
       localStorage.setItem('token', response.data.token);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      console.error('Login error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Login failed';
+      console.error('Login error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: errorMessage,
+        error: error
+      });
+      return rejectWithValue(errorMessage);
     }
   }
 );

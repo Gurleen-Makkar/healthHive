@@ -10,8 +10,29 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "*" }));
 app.use(express.json());
+app.use(cors({
+  origin: ['http://localhost:3000','health-hive-vgxt.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log('Incoming request:', {
+    method: req.method,
+    url: req.url,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'origin': req.headers['origin'],
+      'referer': req.headers['referer']
+    },
+    body: req.method === 'POST' ? req.body : undefined,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
 
 // Database connection
 mongoose

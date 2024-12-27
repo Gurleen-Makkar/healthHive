@@ -34,10 +34,17 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
+    console.log('Pre-save hook - Original password length:', this.password.length);
     const salt = await bcrypt.genSalt(10);
+    console.log('Generated salt:', salt);
     this.password = await bcrypt.hash(this.password, salt);
+    console.log('Hashed password:', {
+      hash: this.password,
+      length: this.password.length
+    });
     next();
   } catch (error) {
+    console.error('Password hashing error:', error);
     next(error);
   }
 });
@@ -45,8 +52,16 @@ userSchema.pre('save', async function(next) {
 // Method to compare password for login
 userSchema.methods.comparePassword = async function(candidatePassword) {
   try {
-    return await bcrypt.compare(candidatePassword, this.password);
+    console.log('Password comparison:', {
+      hashedPassword: this.password,
+      passwordLength: this.password.length,
+      candidateLength: candidatePassword.length
+    });
+    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    console.log('Password match result:', isMatch);
+    return isMatch;
   } catch (error) {
+    console.error('Password comparison error:', error);
     throw error;
   }
 };

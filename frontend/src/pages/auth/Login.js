@@ -84,6 +84,7 @@ const Login = () => {
     e.preventDefault();
     
     if (validateForm()) {
+      console.log('Login form submission:', formData);
       dispatch(login(formData));
     }
   };

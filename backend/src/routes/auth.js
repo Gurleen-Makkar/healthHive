@@ -13,7 +13,8 @@ const registerValidation = [
     .withMessage('Username must be at least 3 characters long'),
   body('email')
     .isEmail()
-    .normalizeEmail()
+    .trim()
+    .toLowerCase()
     .withMessage('Please enter a valid email'),
   body('password')
     .isLength({ min: 6 })
@@ -21,7 +22,7 @@ const registerValidation = [
 ];
 
 const loginValidation = [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail().trim().toLowerCase(),
   body('password').exists()
 ];
 
@@ -52,14 +53,18 @@ router.post('/register', registerValidation, async (req, res) => {
       });
     }
 
-    // Create new user
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
+    // Create new user - let the model handle password hashing
     user = new User({
       username,
       email,
-      password: hashedPassword
+      password // Model's pre-save hook will hash this
+    });
+
+    console.log('Creating new user:', { 
+      receivedEmail: req.body.email,
+      normalizedEmail: email,
+      username,
+      hasPassword: !!password 
     });
 
     await user.save();
@@ -95,17 +100,32 @@ router.post('/login', loginValidation, async (req, res) => {
     }
 
     const { email, password } = req.body;
+    
+    console.log('Login attempt:', { 
+      receivedEmail: req.body.email,
+      normalizedEmail: email,
+      receivedPassword: !!password 
+    });
 
-    // Find user by email
+    // Find user
     const user = await User.findOne({ email });
+    console.log('User found:', { email, found: !!user });
+
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+    // Check password using the model's method
+    console.log('Attempting password comparison');
+    try {
+      const isMatch = await user.comparePassword(password);
+      console.log('Password comparison result:', isMatch);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+    } catch (compareError) {
+      console.error('Password comparison error:', compareError);
+      throw compareError;
     }
 
     // Generate JWT token
@@ -124,8 +144,12 @@ router.post('/login', loginValidation, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    console.error('Login error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    res.status(500).json({ message: 'Server error during login', error: error.message });
   }
 });
 
