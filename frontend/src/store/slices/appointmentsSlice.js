@@ -115,6 +115,7 @@ const appointmentsSlice = createSlice({
       totalAppointments: 0
     },
     loading: false,
+    bookingLoading: false,
     error: null,
     successMessage: null
   },
@@ -165,16 +166,19 @@ const appointmentsSlice = createSlice({
       // Create Appointment
       .addCase(createAppointment.pending, (state) => {
         state.loading = true;
+        state.bookingLoading = true;
         state.error = null;
         state.successMessage = null;
       })
       .addCase(createAppointment.fulfilled, (state, action) => {
         state.loading = false;
+        state.bookingLoading = false;
         state.list = [action.payload.appointment, ...state.list];
         state.successMessage = 'Appointment booked successfully';
       })
       .addCase(createAppointment.rejected, (state, action) => {
         state.loading = false;
+        state.bookingLoading = false;
         // Handle validation errors
         if (action.payload?.errors) {
           state.error = action.payload.errors.map(err => err.msg).join(', ');
@@ -213,8 +217,10 @@ const appointmentsSlice = createSlice({
       })
       .addCase(cancelAppointment.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(
-          appointment => appointment._id !== action.payload.appointmentId
+        state.list = state.list.map(appointment => 
+          appointment._id === action.payload.appointmentId 
+            ? { ...appointment, status: 'cancelled' }
+            : appointment
         );
         state.successMessage = 'Appointment cancelled successfully';
       })

@@ -37,11 +37,9 @@ const BookAppointment = () => {
   const { currentDoctor: doctor, loading: doctorLoading } = useSelector(
     (state) => state.doctors
   );
-  const {
-    loading: bookingLoading,
-    error,
-    successMessage,
-  } = useSelector((state) => state.appointments);
+  const { bookingLoading, error, successMessage } = useSelector(
+    (state) => state.appointments
+  );
 
   const [formData, setFormData] = useState({
     symptoms: "",
@@ -55,6 +53,10 @@ const BookAppointment = () => {
   const selectedTimeSlot = location.state?.timeSlot;
 
   useEffect(() => {
+    // Clear any existing messages
+    dispatch({ type: "appointments/clearError" });
+    dispatch({ type: "appointments/clearSuccessMessage" });
+
     // Check if date is selected
     if (!selectedDate) {
       navigate(`/doctors/${doctorId}`);
@@ -67,9 +69,9 @@ const BookAppointment = () => {
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
-        dispatch({ type: 'appointments/clearSuccessMessage' });
-        navigate('/appointments');
-      }, 3000);
+        dispatch({ type: "appointments/clearSuccessMessage" });
+        navigate("/appointments");
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [successMessage, navigate, dispatch]);
@@ -104,13 +106,6 @@ const BookAppointment = () => {
     e.preventDefault();
 
     if (validateForm()) {
-      console.log("Submitting appointment:", {
-        doctorId,
-        appointmentDate: selectedDate,
-        timeSlot: selectedTimeSlot,
-        ...formData,
-      });
-
       try {
         await dispatch(
           createAppointment({
@@ -152,6 +147,12 @@ const BookAppointment = () => {
           sx={{ mb: 3, whiteSpace: "pre-line" }} // Allow line breaks in error message
         >
           {error}
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          {successMessage}
         </Alert>
       )}
 
@@ -214,7 +215,7 @@ const BookAppointment = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary="Consultation Fee"
-                    secondary={`$${doctor.consultationFee}`}
+                    secondary={`₹${doctor.consultationFee}`}
                   />
                 </ListItem>
               </List>
@@ -272,7 +273,10 @@ const BookAppointment = () => {
                   sx={{ flex: 1 }}
                 >
                   {bookingLoading ? (
-                    <CircularProgress size={24} color="inherit" />
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <CircularProgress size={24} color="inherit" />
+                      <span>Loading...</span>
+                    </Box>
                   ) : (
                     "Confirm Booking"
                   )}

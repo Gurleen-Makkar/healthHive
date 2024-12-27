@@ -191,7 +191,7 @@ const AppointmentDetails = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary="Consultation Fee"
-                    secondary={`$${appointment.consultationFee}`}
+                    secondary={`₹${appointment.consultationFee}`}
                   />
                 </ListItem>
               </List>

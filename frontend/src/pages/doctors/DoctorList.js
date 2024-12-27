@@ -36,18 +36,25 @@ const DoctorList = () => {
   } = useSelector(state => state.doctors);
 
   const [filters, setFilters] = useState({
-    specialty: '',
+    specialty: 'All Specialties',
     search: '',
     page: 1
   });
 
   useEffect(() => {
     dispatch(fetchSpecialties());
+    // Fetch doctors with default filters on mount
+    dispatch(fetchDoctors({
+      specialty: '', // Send empty string to API for all specialties
+      page: 1,
+      limit: 8
+    }));
   }, [dispatch]);
 
+  // Only fetch when filters change after initial mount
   useEffect(() => {
     dispatch(fetchDoctors({
-      specialty: filters.specialty,
+      specialty: filters.specialty === 'All Specialties' ? '' : filters.specialty,
       page: filters.page,
       limit: 8
     }));
@@ -131,13 +138,16 @@ const DoctorList = () => {
                 value={filters.specialty}
                 onChange={handleFilterChange}
                 displayEmpty
+                SelectProps={{
+                  displayEmpty: true,
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     backgroundColor: '#F8FAFC',
                   }
                 }}
               >
-                <MenuItem value="">All Specialties</MenuItem>
+                <MenuItem value="All Specialties">All Specialties</MenuItem>
                 {specialties.map((specialty) => (
                   <MenuItem key={specialty} value={specialty}>
                     {specialty}
@@ -208,7 +218,7 @@ const DoctorList = () => {
                       <Box display="flex" alignItems="center" gap={1} mb={1.5}>
                         <LocationIcon color="primary" fontSize="small" />
                         <Typography variant="body2">
-                          Consultation Fee: ${doctor.consultationFee}
+                          Consultation Fee: ₹{doctor.consultationFee}
                         </Typography>
                       </Box>
 

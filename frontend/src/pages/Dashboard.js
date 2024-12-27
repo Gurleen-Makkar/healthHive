@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAppointments } from '../store/slices/appointmentsSlice';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAppointments } from "../store/slices/appointmentsSlice";
 import {
   Box,
   Grid,
@@ -18,36 +18,44 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Chip,
-  CircularProgress
-} from '@mui/material';
+  CircularProgress,
+} from "@mui/material";
 import {
   Add as AddIcon,
   Event as EventIcon,
   Search as SearchIcon,
-  ArrowForward as ArrowForwardIcon
-} from '@mui/icons-material';
+  ArrowForward as ArrowForwardIcon,
+} from "@mui/icons-material";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state.auth);
-  const { list: appointments, loading } = useSelector(state => state.appointments);
+  const { user } = useSelector((state) => state.auth);
+  const { list: appointments, loading } = useSelector(
+    (state) => state.appointments
+  );
 
   useEffect(() => {
-    dispatch(fetchAppointments({ 
-      status: 'scheduled',
-      page: 1, 
-      limit: 5 
-    }));
+    dispatch(
+      fetchAppointments({
+        status: "scheduled",
+        page: 1,
+        limit: 5,
+      })
+    );
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('Current appointments:', appointments);
+    console.log("Current appointments:", appointments);
   }, [appointments]);
 
   // Get upcoming appointments (next 5)
   const upcomingAppointments = appointments
     .filter(apt => {
+      // Only include appointments that have complete data
+      if (!apt.doctor || !apt.doctor.name || !apt.appointmentDate) {
+        return false;
+      }
       const aptDate = new Date(apt.appointmentDate);
       const now = new Date();
       // Set both dates to start of day for comparison
@@ -59,28 +67,28 @@ const Dashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'scheduled':
-        return 'primary';
-      case 'completed':
-        return 'success';
-      case 'cancelled':
-        return 'error';
+      case "scheduled":
+        return "primary";
+      case "completed":
+        return "success";
+      case "cancelled":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   const formatTime = (time) => {
-    return time;  // You might want to format this based on your time format
+    return time; // You might want to format this based on your time format
   };
 
   return (
@@ -101,15 +109,15 @@ const Dashboard = () => {
           <Paper
             sx={{
               p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              cursor: 'pointer',
-              '&:hover': { bgcolor: 'action.hover' }
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              cursor: "pointer",
+              "&:hover": { bgcolor: "action.hover" },
             }}
-            onClick={() => navigate('/doctors')}
+            onClick={() => navigate("/doctors")}
           >
-            <SearchIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+            <SearchIcon sx={{ fontSize: 40, color: "primary.main", mb: 1 }} />
             <Typography variant="h6" gutterBottom>
               Find Doctors
             </Typography>
@@ -123,15 +131,15 @@ const Dashboard = () => {
           <Paper
             sx={{
               p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              cursor: 'pointer',
-              '&:hover': { bgcolor: 'action.hover' }
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              cursor: "pointer",
+              "&:hover": { bgcolor: "action.hover" },
             }}
-            onClick={() => navigate('/appointments')}
+            onClick={() => navigate("/appointments")}
           >
-            <EventIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+            <EventIcon sx={{ fontSize: 40, color: "primary.main", mb: 1 }} />
             <Typography variant="h6" gutterBottom>
               My Appointments
             </Typography>
@@ -145,14 +153,17 @@ const Dashboard = () => {
       {/* Upcoming Appointments */}
       <Card>
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">
-              Upcoming Appointments
-            </Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">Upcoming Appointments</Typography>
             <Button
               variant="outlined"
               startIcon={<AddIcon />}
-              onClick={() => navigate('/doctors')}
+              onClick={() => navigate("/doctors")}
             >
               Book New
             </Button>
@@ -178,7 +189,8 @@ const Dashboard = () => {
                       secondary={
                         <Box>
                           <Typography variant="body2" color="text.secondary">
-                            {formatDate(appointment.appointmentDate)} at {formatTime(appointment.timeSlot)}
+                            {formatDate(appointment.appointmentDate)} at{" "}
+                            {formatTime(appointment.timeSlot)}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
                             {appointment.doctor.specialty}
@@ -195,7 +207,9 @@ const Dashboard = () => {
                         />
                         <IconButton
                           edge="end"
-                          onClick={() => navigate(`/appointments/${appointment._id}`)}
+                          onClick={() =>
+                            navigate(`/appointments/${appointment._id}`)
+                          }
                         >
                           <ArrowForwardIcon />
                         </IconButton>
@@ -215,7 +229,7 @@ const Dashboard = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 sx={{ mt: 2 }}
-                onClick={() => navigate('/doctors')}
+                onClick={() => navigate("/doctors")}
               >
                 Book Your First Appointment
               </Button>
@@ -225,7 +239,7 @@ const Dashboard = () => {
         <CardActions>
           <Button
             fullWidth
-            onClick={() => navigate('/appointments')}
+            onClick={() => navigate("/appointments")}
             endIcon={<ArrowForwardIcon />}
           >
             View All Appointments

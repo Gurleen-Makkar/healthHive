@@ -164,7 +164,7 @@ const DoctorDetails = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary="Consultation Fee"
-                    secondary={`$${doctor.consultationFee}`}
+                    secondary={`₹${doctor.consultationFee}`}
                   />
                 </ListItem>
               </List>
