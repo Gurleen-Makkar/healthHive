@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { createAppointment } from '../../store/slices/appointmentsSlice';
-import { fetchDoctorDetails } from '../../store/slices/doctorsSlice';
+import React, { useEffect, useState } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createAppointment } from "../../store/slices/appointmentsSlice";
+import { fetchDoctorDetails } from "../../store/slices/doctorsSlice";
 import {
   Box,
   Card,
@@ -18,15 +18,15 @@ import {
   ListItemText,
   Alert,
   CircularProgress,
-  Paper
-} from '@mui/material';
+  Paper,
+} from "@mui/material";
 import {
   Person as PersonIcon,
   CalendarMonth as CalendarIcon,
   AccessTime as AccessTimeIcon,
   LocalHospital as LocalHospitalIcon,
-  AttachMoney as MoneyIcon
-} from '@mui/icons-material';
+  AttachMoney as MoneyIcon,
+} from "@mui/icons-material";
 
 const BookAppointment = () => {
   const { doctorId } = useParams();
@@ -34,12 +34,18 @@ const BookAppointment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { currentDoctor: doctor, loading: doctorLoading } = useSelector(state => state.doctors);
-  const { loading: bookingLoading, error, successMessage } = useSelector(state => state.appointments);
+  const { currentDoctor: doctor, loading: doctorLoading } = useSelector(
+    (state) => state.doctors
+  );
+  const {
+    loading: bookingLoading,
+    error,
+    successMessage,
+  } = useSelector((state) => state.appointments);
 
   const [formData, setFormData] = useState({
-    symptoms: '',
-    notes: ''
+    symptoms: "",
+    notes: "",
   });
   const [formErrors, setFormErrors] = useState({});
 
@@ -60,15 +66,19 @@ const BookAppointment = () => {
 
   useEffect(() => {
     if (successMessage) {
-      navigate('/appointments');
+      const timer = setTimeout(() => {
+        dispatch({ type: 'appointments/clearSuccessMessage' });
+        navigate('/appointments');
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [successMessage, navigate]);
+  }, [successMessage, navigate, dispatch]);
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.symptoms.trim()) {
-      errors.symptoms = 'Please describe your symptoms';
+      errors.symptoms = "Please describe your symptoms";
     }
 
     setFormErrors(errors);
@@ -77,15 +87,15 @@ const BookAppointment = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear field-specific error when user starts typing
     if (formErrors[name]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -94,30 +104,37 @@ const BookAppointment = () => {
     e.preventDefault();
 
     if (validateForm()) {
-      console.log('Submitting appointment:', {
+      console.log("Submitting appointment:", {
         doctorId,
         appointmentDate: selectedDate,
         timeSlot: selectedTimeSlot,
-        ...formData
+        ...formData,
       });
 
       try {
-        await dispatch(createAppointment({
-          doctorId,
-          appointmentDate: selectedDate,
-          timeSlot: selectedTimeSlot,
-          symptoms: formData.symptoms.trim(),
-          notes: formData.notes.trim()
-        })).unwrap();
+        await dispatch(
+          createAppointment({
+            doctorId,
+            appointmentDate: selectedDate,
+            timeSlot: selectedTimeSlot,
+            symptoms: formData.symptoms.trim(),
+            notes: formData.notes.trim(),
+          })
+        ).unwrap();
       } catch (err) {
-        console.error('Failed to create appointment:', err);
+        console.error("Failed to create appointment:", err);
       }
     }
   };
 
   if (doctorLoading || !doctor) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh"
+      >
         <CircularProgress />
       </Box>
     );
@@ -130,9 +147,9 @@ const BookAppointment = () => {
       </Typography>
 
       {error && (
-        <Alert 
-          severity="error" 
-          sx={{ mb: 3, whiteSpace: 'pre-line' }}  // Allow line breaks in error message
+        <Alert
+          severity="error"
+          sx={{ mb: 3, whiteSpace: "pre-line" }} // Allow line breaks in error message
         >
           {error}
         </Alert>
@@ -147,7 +164,7 @@ const BookAppointment = () => {
                 Appointment Details
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              
+
               <List>
                 <ListItem>
                   <ListItemIcon>
@@ -173,22 +190,23 @@ const BookAppointment = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary="Date"
-                    secondary={selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : 'Not selected'}
+                    secondary={
+                      selectedDate
+                        ? new Date(selectedDate).toLocaleDateString("en-US", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : "Not selected"
+                    }
                   />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
                     <AccessTimeIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText
-                    primary="Time"
-                    secondary={selectedTimeSlot}
-                  />
+                  <ListItemText primary="Time" secondary={selectedTimeSlot} />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
@@ -256,7 +274,7 @@ const BookAppointment = () => {
                   {bookingLoading ? (
                     <CircularProgress size={24} color="inherit" />
                   ) : (
-                    'Confirm Booking'
+                    "Confirm Booking"
                   )}
                 </Button>
               </Box>

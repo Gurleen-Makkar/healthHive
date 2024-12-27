@@ -34,14 +34,28 @@ const Dashboard = () => {
   const { list: appointments, loading } = useSelector(state => state.appointments);
 
   useEffect(() => {
-    dispatch(fetchAppointments({ page: 1, limit: 5 }));
+    dispatch(fetchAppointments({ 
+      status: 'scheduled',
+      page: 1, 
+      limit: 5 
+    }));
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log('Current appointments:', appointments);
+  }, [appointments]);
 
   // Get upcoming appointments (next 5)
   const upcomingAppointments = appointments
-    .filter(apt => new Date(apt.appointmentDate) >= new Date())
-    .sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate))
-    .slice(0, 5);
+    .filter(apt => {
+      const aptDate = new Date(apt.appointmentDate);
+      const now = new Date();
+      // Set both dates to start of day for comparison
+      aptDate.setHours(0, 0, 0, 0);
+      now.setHours(0, 0, 0, 0);
+      return aptDate >= now;
+    })
+    .sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
 
   const getStatusColor = (status) => {
     switch (status) {

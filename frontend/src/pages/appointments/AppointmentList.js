@@ -63,6 +63,15 @@ const AppointmentList = () => {
     }));
   }, [dispatch, filters.status, filters.search, filters.page]);
 
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        dispatch({ type: 'appointments/clearSuccessMessage' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, dispatch]);
+
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
     setFilters(prev => ({
@@ -143,7 +152,7 @@ const AppointmentList = () => {
           </Typography>
         </Box>
 
-        {error && (
+        {error && error !== 'Failed to fetch appointments' && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
