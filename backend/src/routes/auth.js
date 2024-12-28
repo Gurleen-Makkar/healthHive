@@ -112,7 +112,7 @@ router.post('/login', loginValidation, async (req, res) => {
     console.log('User found:', { email, found: !!user });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'User not registered. Please sign up first.' });
     }
 
     // Check password using the model's method
