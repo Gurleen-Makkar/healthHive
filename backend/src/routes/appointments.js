@@ -20,20 +20,29 @@ const createAppointmentValidation = [
       if (appointmentDate.toDateString() === now.toDateString()) {
         const timeStr = req.body?.timeSlot;
         if (timeStr) {
-          const [time, period] = timeStr.split(' ');
-          const [hours, minutes] = time.split(':');
+          const [time, period] = timeStr.split(" ");
+          const [hours, minutes] = time.split(":");
           let appointmentHours = parseInt(hours);
-          if (period === 'PM' && appointmentHours !== 12) {
+
+          // Convert to 24-hour format
+          if (period.toUpperCase() === "PM" && appointmentHours !== 12) {
             appointmentHours += 12;
-          } else if (period === 'AM' && appointmentHours === 12) {
+          } else if (period.toUpperCase() === "AM" && appointmentHours === 12) {
             appointmentHours = 0;
           }
-          
+
+          // Create appointment time with the selected date
           const appointmentTime = new Date(appointmentDate);
           appointmentTime.setHours(appointmentHours, parseInt(minutes), 0, 0);
-          
-          if (appointmentTime < now) {
-            throw new Error("Cannot book an appointment for a time that has already passed");
+
+          // Add 30 minutes buffer to current time
+          const bufferTime = new Date();
+          bufferTime.setMinutes(bufferTime.getMinutes() + 30);
+
+          if (appointmentTime < bufferTime) {
+            throw new Error(
+              "Cannot book an appointment for a time that is less than 30 minutes from now"
+            );
           }
         }
       } else if (appointmentDate < now) {
@@ -58,20 +67,29 @@ const updateAppointmentValidation = [
       if (appointmentDate.toDateString() === now.toDateString()) {
         const timeStr = req.body?.timeSlot;
         if (timeStr) {
-          const [time, period] = timeStr.split(' ');
-          const [hours, minutes] = time.split(':');
+          const [time, period] = timeStr.split(" ");
+          const [hours, minutes] = time.split(":");
           let appointmentHours = parseInt(hours);
-          if (period === 'PM' && appointmentHours !== 12) {
+
+          // Convert to 24-hour format
+          if (period.toUpperCase() === "PM" && appointmentHours !== 12) {
             appointmentHours += 12;
-          } else if (period === 'AM' && appointmentHours === 12) {
+          } else if (period.toUpperCase() === "AM" && appointmentHours === 12) {
             appointmentHours = 0;
           }
-          
-          const appointmentTime = new Date(appointmentDate);
+
+          // Create appointment time with today's date
+          const appointmentTime = new Date();
           appointmentTime.setHours(appointmentHours, parseInt(minutes), 0, 0);
-          
-          if (appointmentTime < now) {
-            throw new Error("Cannot book an appointment for a time that has already passed");
+
+          // Add 30 minutes buffer to current time
+          const bufferTime = new Date();
+          bufferTime.setMinutes(bufferTime.getMinutes() + 30);
+
+          if (appointmentTime < bufferTime) {
+            throw new Error(
+              "Cannot book an appointment for a time that is less than 30 minutes from now"
+            );
           }
         }
       } else if (appointmentDate < now) {
@@ -151,15 +169,18 @@ router.get("/", auth, async (req, res) => {
       const populatedAppointments = await Appointment.populate(appointments, {
         path: "doctor",
         select: "name specialty consultationFee",
-        model: 'Doctor'
+        model: "Doctor",
       });
 
-      console.log('Found appointments with search:', populatedAppointments.map(apt => ({
-        id: apt._id,
-        doctor: apt.doctor,
-        date: apt.appointmentDate,
-        timeSlot: apt.timeSlot
-      })));
+      console.log(
+        "Found appointments with search:",
+        populatedAppointments.map((apt) => ({
+          id: apt._id,
+          doctor: apt.doctor,
+          date: apt.appointmentDate,
+          timeSlot: apt.timeSlot,
+        }))
+      );
 
       return res.json({
         appointments: populatedAppointments,
@@ -173,18 +194,21 @@ router.get("/", auth, async (req, res) => {
       .populate({
         path: "doctor",
         select: "name specialty consultationFee",
-        model: 'Doctor'
+        model: "Doctor",
       })
-      .sort({ appointmentDate: -1, timeSlot: 1 })  // Show newest appointments first
+      .sort({ appointmentDate: -1, timeSlot: 1 }) // Show newest appointments first
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
-    console.log('Found appointments:', appointments.map(apt => ({
-      id: apt._id,
-      doctor: apt.doctor,
-      date: apt.appointmentDate,
-      timeSlot: apt.timeSlot
-    })));
+    console.log(
+      "Found appointments:",
+      appointments.map((apt) => ({
+        id: apt._id,
+        doctor: apt.doctor,
+        date: apt.appointmentDate,
+        timeSlot: apt.timeSlot,
+      }))
+    );
 
     const total = await Appointment.countDocuments(query);
 
@@ -314,19 +338,19 @@ router.post("/", [auth, createAppointmentValidation], async (req, res) => {
     const populatedAppointment = await appointment.populate({
       path: "doctor",
       select: "name specialty consultationFee",
-      model: 'Doctor'
+      model: "Doctor",
     });
 
-    console.log('Created appointment:', {
+    console.log("Created appointment:", {
       id: populatedAppointment._id,
       doctor: populatedAppointment.doctor,
       date: populatedAppointment.appointmentDate,
-      timeSlot: populatedAppointment.timeSlot
+      timeSlot: populatedAppointment.timeSlot,
     });
 
     res.status(201).json({
       message: "Appointment booked successfully",
-      appointment: populatedAppointment
+      appointment: populatedAppointment,
     });
   } catch (error) {
     console.error("Create appointment error:", error);
@@ -394,7 +418,8 @@ router.put("/:id", [auth, updateAppointmentValidation], async (req, res) => {
 
     // Check for time slot availability if date/time is being changed
     if (
-      parsedDate.toDateString() !== appointment.appointmentDate.toDateString() ||
+      parsedDate.toDateString() !==
+        appointment.appointmentDate.toDateString() ||
       timeSlot !== appointment.timeSlot
     ) {
       const doctor = await Doctor.findById(appointment.doctor);
@@ -450,19 +475,19 @@ router.put("/:id", [auth, updateAppointmentValidation], async (req, res) => {
     const populatedAppointment = await appointment.populate({
       path: "doctor",
       select: "name specialty consultationFee",
-      model: 'Doctor'
+      model: "Doctor",
     });
 
-    console.log('Updated appointment:', {
+    console.log("Updated appointment:", {
       id: populatedAppointment._id,
       doctor: populatedAppointment.doctor,
       date: populatedAppointment.appointmentDate,
-      timeSlot: populatedAppointment.timeSlot
+      timeSlot: populatedAppointment.timeSlot,
     });
 
     res.json({
       message: "Appointment updated successfully",
-      appointment: populatedAppointment
+      appointment: populatedAppointment,
     });
   } catch (error) {
     console.error("Update appointment error:", error);
