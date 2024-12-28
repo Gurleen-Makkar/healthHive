@@ -107,6 +107,14 @@ const doctorsSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    clearList: (state) => {
+      state.list = [];
+      state.pagination = {
+        currentPage: 1,
+        totalPages: 1,
+        totalDoctors: 0
+      };
     }
   },
   extraReducers: (builder) => {
@@ -171,6 +179,6 @@ const doctorsSlice = createSlice({
   }
 });
 
-export const { clearDoctorDetails, clearAvailability, clearError } = doctorsSlice.actions;
+export const { clearDoctorDetails, clearAvailability, clearError, clearList } = doctorsSlice.actions;
 
 export default doctorsSlice.reducer;

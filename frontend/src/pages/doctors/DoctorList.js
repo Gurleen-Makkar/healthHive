@@ -49,6 +49,11 @@ const DoctorList = () => {
       page: 1,
       limit: 8
     }));
+    
+    // Cleanup function to clear doctors list when component unmounts
+    return () => {
+      dispatch({ type: 'doctors/clearList' });
+    };
   }, [dispatch]);
 
   useEffect(() => {
