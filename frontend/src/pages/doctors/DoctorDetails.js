@@ -54,8 +54,8 @@ const DoctorDetails = () => {
 
   useEffect(() => {
     if (selectedDate) {
-      // Format date to YYYY-MM-DD
-      const formattedDate = selectedDate.toISOString().split('T')[0];
+      // Format date to YYYY-MM-DD while preserving local date
+      const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
       dispatch(fetchDoctorAvailability({
         doctorId: id,
         date: formattedDate
@@ -74,8 +74,8 @@ const DoctorDetails = () => {
 
   const handleBookAppointment = () => {
     if (selectedDate && selectedTimeSlot) {
-      // Format date to YYYY-MM-DD
-      const formattedDate = selectedDate.toISOString().split('T')[0];
+      // Format date to YYYY-MM-DD while preserving local date
+      const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
       navigate(`/book-appointment/${id}`, {
         state: {
           date: formattedDate,

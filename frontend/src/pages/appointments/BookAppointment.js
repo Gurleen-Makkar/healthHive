@@ -193,7 +193,7 @@ const BookAppointment = () => {
                     primary="Date"
                     secondary={
                       selectedDate
-                        ? new Date(selectedDate).toLocaleDateString("en-US", {
+                        ? new Date(selectedDate + 'T00:00:00').toLocaleDateString("en-US", {
                             weekday: "long",
                             year: "numeric",
                             month: "long",

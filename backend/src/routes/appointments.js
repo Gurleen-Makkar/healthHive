@@ -12,14 +12,31 @@ const createAppointmentValidation = [
   body("appointmentDate")
     .notEmpty()
     .withMessage("Appointment date is required")
-    .custom((value) => {
+    .custom((value, { req }) => {
       const appointmentDate = new Date(value);
-      const today = new Date();
-      // Set both dates to start of day for comparison
-      appointmentDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
 
-      if (appointmentDate < today) {
+      // For same day appointments, check if the time has already passed
+      if (appointmentDate.toDateString() === now.toDateString()) {
+        const timeStr = req.body?.timeSlot;
+        if (timeStr) {
+          const [time, period] = timeStr.split(' ');
+          const [hours, minutes] = time.split(':');
+          let appointmentHours = parseInt(hours);
+          if (period === 'PM' && appointmentHours !== 12) {
+            appointmentHours += 12;
+          } else if (period === 'AM' && appointmentHours === 12) {
+            appointmentHours = 0;
+          }
+          
+          const appointmentTime = new Date(appointmentDate);
+          appointmentTime.setHours(appointmentHours, parseInt(minutes), 0, 0);
+          
+          if (appointmentTime < now) {
+            throw new Error("Cannot book an appointment for a time that has already passed");
+          }
+        }
+      } else if (appointmentDate < now) {
         throw new Error("Appointment date cannot be in the past");
       }
       return true;
@@ -33,14 +50,31 @@ const updateAppointmentValidation = [
   body("appointmentDate")
     .notEmpty()
     .withMessage("Appointment date is required")
-    .custom((value) => {
+    .custom((value, { req }) => {
       const appointmentDate = new Date(value);
-      const today = new Date();
-      // Set both dates to start of day for comparison
-      appointmentDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
 
-      if (appointmentDate < today) {
+      // For same day appointments, check if the time has already passed
+      if (appointmentDate.toDateString() === now.toDateString()) {
+        const timeStr = req.body?.timeSlot;
+        if (timeStr) {
+          const [time, period] = timeStr.split(' ');
+          const [hours, minutes] = time.split(':');
+          let appointmentHours = parseInt(hours);
+          if (period === 'PM' && appointmentHours !== 12) {
+            appointmentHours += 12;
+          } else if (period === 'AM' && appointmentHours === 12) {
+            appointmentHours = 0;
+          }
+          
+          const appointmentTime = new Date(appointmentDate);
+          appointmentTime.setHours(appointmentHours, parseInt(minutes), 0, 0);
+          
+          if (appointmentTime < now) {
+            throw new Error("Cannot book an appointment for a time that has already passed");
+          }
+        }
+      } else if (appointmentDate < now) {
         throw new Error("Appointment date cannot be in the past");
       }
       return true;
@@ -249,9 +283,6 @@ router.post("/", [auth, createAppointmentValidation], async (req, res) => {
         .json({ message: "Selected time slot is not available" });
     }
 
-    // Set the appointment date to start of the day to avoid timezone issues
-    const appointmentDateStart = new Date(parsedDate.setHours(0, 0, 0, 0));
-
     // Check for conflicting appointments
     const hasConflict = await Appointment.checkConflict(
       doctorId,
@@ -270,7 +301,7 @@ router.post("/", [auth, createAppointmentValidation], async (req, res) => {
     const appointment = new Appointment({
       user: req.user.id,
       doctor: doctorId,
-      appointmentDate: appointmentDateStart,
+      appointmentDate: parsedDate,
       timeSlot: formattedTimeSlot,
       symptoms,
       notes,
@@ -361,15 +392,9 @@ router.put("/:id", [auth, updateAppointmentValidation], async (req, res) => {
       return res.status(400).json({ message: "Invalid appointment date" });
     }
 
-    // Set the appointment date to start of day for comparison
-    const newAppointmentDate = new Date(parsedDate.setHours(0, 0, 0, 0));
-    const currentAppointmentDate = new Date(
-      appointment.appointmentDate.setHours(0, 0, 0, 0)
-    );
-
     // Check for time slot availability if date/time is being changed
     if (
-      newAppointmentDate.getTime() !== currentAppointmentDate.getTime() ||
+      parsedDate.toDateString() !== appointment.appointmentDate.toDateString() ||
       timeSlot !== appointment.timeSlot
     ) {
       const doctor = await Doctor.findById(appointment.doctor);
@@ -414,7 +439,7 @@ router.put("/:id", [auth, updateAppointmentValidation], async (req, res) => {
       .replace(/\s+/g, " "); // Normalize spaces between time and AM/PM
 
     // Update appointment with the parsed date and formatted time slot
-    appointment.appointmentDate = newAppointmentDate;
+    appointment.appointmentDate = parsedDate;
     appointment.timeSlot = formattedTimeSlot;
     appointment.symptoms = symptoms;
     if (notes) appointment.notes = notes;
