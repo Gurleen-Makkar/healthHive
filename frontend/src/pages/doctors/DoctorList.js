@@ -17,7 +17,8 @@ import {
   Pagination,
   CircularProgress,
   Rating,
-  InputAdornment
+  InputAdornment,
+  Stack
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -43,15 +44,13 @@ const DoctorList = () => {
 
   useEffect(() => {
     dispatch(fetchSpecialties());
-    // Fetch doctors with default filters on mount
     dispatch(fetchDoctors({
-      specialty: '', // Send empty string to API for all specialties
+      specialty: '',
       page: 1,
       limit: 8
     }));
   }, [dispatch]);
 
-  // Only fetch when filters change after initial mount
   useEffect(() => {
     dispatch(fetchDoctors({
       specialty: filters.specialty === 'All Specialties' ? '' : filters.specialty,
@@ -65,7 +64,7 @@ const DoctorList = () => {
     setFilters(prev => ({
       ...prev,
       [name]: value,
-      page: 1 // Reset to first page when filters change
+      page: 1
     }));
   };
 
@@ -160,39 +159,54 @@ const DoctorList = () => {
 
         {/* Doctor List */}
         {loading ? (
-        <Box display="flex" justifyContent="center" p={4}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <>
-          <Grid container spacing={3}>
-            {filteredDoctors.map((doctor) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={doctor._id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardContent sx={{ flex: 1, p: 3 }}>
-                    <Box display="flex" gap={3}>
-                      <Avatar
-                        sx={{ 
-                          width: 80, 
-                          height: 80,
-                          bgcolor: 'primary.light',
-                          fontSize: '2rem',
-                          border: '4px solid',
-                          borderColor: 'primary.lighter'
-                        }}
-                      >
-                        {doctor.name.charAt(0)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="h6" gutterBottom fontWeight="600">
-                          Dr. {doctor.name}
-                        </Typography>
-                        <Chip
-                          label={doctor.specialty}
-                          color="primary"
-                          size="small"
-                          sx={{ mb: 1, borderRadius: 1.5 }}
-                        />
+          <Box display="flex" justifyContent="center" p={4}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={3}>
+              {filteredDoctors.map((doctor) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={doctor._id}>
+                  <Card sx={{ 
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 2.5, flex: 1 }}>
+                      <Stack spacing={2}>
+                        {/* Doctor Info */}
+                        <Stack direction="row" spacing={2} alignItems="center">
+                          <Avatar
+                            sx={{ 
+                              width: 56,
+                              height: 56,
+                              bgcolor: 'primary.light',
+                              fontSize: '1.5rem',
+                              border: '3px solid',
+                              borderColor: 'primary.lighter'
+                            }}
+                          >
+                            {doctor.name.charAt(0)}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="subtitle1" fontWeight="600" gutterBottom>
+                              Dr. {doctor.name}
+                            </Typography>
+                            <Chip
+                              label={doctor.specialty}
+                              color="primary"
+                              size="small"
+                              sx={{ borderRadius: 1 }}
+                            />
+                          </Box>
+                        </Stack>
+
+                        {/* Rating */}
                         <Box display="flex" alignItems="center" gap={0.5}>
                           <Rating
                             value={doctor.rating}
@@ -204,82 +218,62 @@ const DoctorList = () => {
                             ({doctor.rating})
                           </Typography>
                         </Box>
-                      </Box>
-                    </Box>
 
-                    <Box sx={{ mt: 3 }}>
-                      <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-                        <AccessTimeIcon color="primary" fontSize="small" />
-                        <Typography variant="body2">
-                          {doctor.experience} years experience
-                        </Typography>
-                      </Box>
+                        {/* Details */}
+                        <Stack spacing={1.5}>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <AccessTimeIcon color="primary" sx={{ fontSize: 20 }} />
+                            <Typography variant="body2">
+                              {doctor.experience} years experience
+                            </Typography>
+                          </Box>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <LocationIcon color="primary" sx={{ fontSize: 20 }} />
+                            <Typography variant="body2">
+                              Consultation Fee: ₹{doctor.consultationFee}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </Stack>
+                    </CardContent>
 
-                      <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-                        <LocationIcon color="primary" fontSize="small" />
-                        <Typography variant="body2">
-                          Consultation Fee: ₹{doctor.consultationFee}
-                        </Typography>
-                      </Box>
+                    <CardActions sx={{ p: 2.5, pt: 0 }}>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        onClick={() => navigate(`/doctors/${doctor._id}`)}
+                        sx={{ 
+                          py: 1,
+                          fontWeight: 600
+                        }}
+                      >
+                        Book Appointment
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
 
-                      <Typography variant="body2" color="text.secondary" mt={2}>
-                        Available on
-                      </Typography>
-                      <Box display="flex" gap={1} mt={1}>
-                        {['Monday', 'Wednesday', 'Friday'].map(day => (
-                          <Chip
-                            key={day}
-                            label={day.slice(0, 3)}
-                            size="small"
-                            variant="outlined"
-                            sx={{ 
-                              borderRadius: 1,
-                              bgcolor: 'background.paper',
-                              borderColor: 'primary.light'
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                  </CardContent>
-
-                  <CardActions sx={{ p: 3, pt: 0 }}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      onClick={() => navigate(`/doctors/${doctor._id}`)}
-                      sx={{ 
-                        py: 1,
-                        fontWeight: 600
-                      }}
-                    >
-                      Book Appointment
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-
-          {/* Pagination */}
-          {filteredDoctors.length > 0 ? (
-            <Box display="flex" justifyContent="center" mt={4}>
-              <Pagination
-                count={pagination.totalPages}
-                page={filters.page}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Box>
-          ) : (
-            <Box textAlign="center" py={4}>
-              <Typography color="text.secondary">
-                No doctors found matching your criteria
-              </Typography>
-            </Box>
-          )}
-        </>
-      )}
+            {/* Pagination */}
+            {filteredDoctors.length > 0 ? (
+              <Box display="flex" justifyContent="center" mt={4}>
+                <Pagination
+                  count={pagination.totalPages}
+                  page={filters.page}
+                  onChange={handlePageChange}
+                  color="primary"
+                />
+              </Box>
+            ) : (
+              <Box textAlign="center" py={4}>
+                <Typography color="text.secondary">
+                  No doctors found matching your criteria
+                </Typography>
+              </Box>
+            )}
+          </>
+        )}
       </Box>
     </Box>
   );
